@@ -1,0 +1,11 @@
+---
+- name: Tues moning review  # title / metadate for 'play'
+  hosts: planetexpress      # identified within the the inv as a agrop or host
+  gather_facts: true        # default is true - gather info from target(s)
+                            # works against: linux, windows, major network devs
+  connection: ansible.builtin.ssh  # ssh connection plugin (default)
+
+  tasks:
+  - name: using shell to insatll steam locomotive
+    ansible.builtin.shell: "apt install sl"
+    become: yes  # runs as admin/sudo/enable w/ permissions
