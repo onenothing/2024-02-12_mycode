@@ -1,0 +1,50 @@
+---
+- name: install or update notepad++
+  hosts: windows
+  gather_facts: true
+  connection: winrm
+
+  vars:
+    updating: false     # set this true when notepad++ is already installed and you want to update the solution
+    notepad_plus_plus_url: https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.5.7/npp.8.5.7.Installer.x64.exe
+    # we can transform the data provided by notepad_plus_plus_url
+    #notepad_plus_plus_url.split('/') ==  ["https", "", "github.com", "notepad-plus-plus", "notepad-plus-plus", "release", "download", "v8.5.7", "npp.8.5.7.Installer.x64.exe"]
+
+  tasks:
+
+  - name: ensure a download directory exists
+    ansible.windows.win_file:
+      path: "C:\\Users\\{{ ansible_user }}\\Desktop\\ansible_examples\\"
+      state: directory
+
+  - name: download the notepad++ installer
+    ansible.windows.win_get_url:
+      url: "{{ notepad_plus_plus_url }}"      # path to the notepad++ url
+      dest: "C:\\Users\\{{ ansible_user }}\\Desktop\\ansible_examples\\"
+
+  # ansible.windows.win_package is NOT idempotent for notepad++ without the "creates_path"
+  # unfortunately, if we want to UPDATE notepad++, and it is already installed, the "creates_path" prevents a second install (i.e. the update)
+  # our hack-around is to let the user pass a variable (updating) where if true, we always attempt to install notepad++
+  - name: select if we are installing or performing a change operation
+    block:
+      - name: installing Notepad++
+        ansible.windows.win_package:
+          path: "C:\\Users\\{{ ansible_user }}\\Desktop\\ansible_examples\\{{ notepad_plus_plus_url.split('/')[-1] }}"
+          arguments: '/S'
+          creates_path: 'C:\Program Files\Notepad++\notepad++.exe'
+          state: present
+        when: ansible_os_family == 'Windows' and not updating|bool   # this is a windows ONLY app
+
+      - name: updating Notepad++
+        ansible.windows.win_package:
+          path: "C:\\Users\\{{ ansible_user }}\\Desktop\\ansible_examples\\{{ notepad_plus_plus_url.split('/')[-1] }}"
+          arguments: '/S'
+          state: present
+        when: ansible_os_family == 'Windows' and updating|bool
+
+  - name: add Notepad++ to Path Variable on Windows hosts
+    ansible.windows.win_path:
+      elements:
+      - 'C:\Program Files\Notepad++'
+    when: ansible_os_family == 'Windows'
+

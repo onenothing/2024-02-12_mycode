@@ -1,0 +1,19 @@
+---
+- name: issuing commands predictably with win_command
+  hosts: windows       # name of the group we want to run against
+  #connection: winrm   # we already mapped this in our inventory
+  gather_facts: false
+
+  tasks:
+    - name: save the result of 'whoami' in 'results'
+      ansible.windows.win_command: whoami
+      register: results
+    
+    - name: save the result of 'systeminfo' in 'results'
+      ansible.windows.win_command: systeminfo
+      register: results
+
+    - name: display the results
+      ansible.builtin.debug:
+        var: results
+
