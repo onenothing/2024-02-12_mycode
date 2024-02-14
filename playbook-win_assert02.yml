@@ -1,0 +1,12 @@
+---
+- name: checkup on windows
+  hosts: windows
+  connection: winrm
+  gather_facts: true
+  
+  tasks:
+    - name: verify OS is Windows2022
+      ansible.builtin.assert:
+        that: ansible_os_family == 'Windows'
+        fail_msg: "OS is not Windows"
+        success_msg: "This is a Windows2022 OS machine"
