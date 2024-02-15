@@ -1,0 +1,14 @@
+---
+- name: touch a windows host   # JUST a name
+  hosts: windows         # group name from inventory
+  connection: winrm      # use to connect to windows host
+  gather_facts: true     # no facts needed
+
+  tasks:
+
+    # CHOCOLATEY.CHOCOLATEY.WIN_CHOCOLATEY
+    - name: install GoogleChrome
+      chocolatey.chocolatey.win_chocolatey:
+        name: googlechrome
+        state: present
+
