@@ -1,0 +1,19 @@
+---
+- name: touch a windows host   # JUST a name
+  hosts: windows         # group name from inventory
+  connection: winrm      # use to connect to windows host
+  gather_facts: true     # no facts needed
+
+  tasks:
+
+    # ansible.windows.win_regedit
+    - name: edit the registry
+      ansible.windows.win_regedit:
+        path: HKLM:\SOFTWARE\Alta3Research
+
+    - name: Modifying a registry, adding name and data
+      ansible.builtin.win_regedit:
+        path: HKLM:\SOFTWARE\Alta3Research
+        name: Training
+        data: Ansible
+
